@@ -14,6 +14,8 @@ const EmailFormGroup = ({
   const [bu_email, setBuEmail] = useState('');
   const [bu_category, setBuCategory] = useState('');
   const [changeOccured, setChangeOccured] = useState(false);
+  const [changesSaved, setChangesSaved] = useState(false);
+  const [changesApplied, setChangesApplied] = useState(false);
   const [changes, setChanges] = useState(null);
 
   useEffect(() => {
@@ -27,6 +29,8 @@ const EmailFormGroup = ({
     setCategory(bu_category);
     setEmail(bu_email);
     setChangeOccured(false);
+    setChangesApplied(false);
+    setChangesSaved(false);
     setChanges(null);
   };
 
@@ -35,9 +39,14 @@ const EmailFormGroup = ({
       action: 'update',
       id: id,
       category: _category,
-      type: 'email',
+      property: 'email',
       email: _email,
     });
+    setChangesSaved(true);
+  };
+
+  const applyChanges = () => {
+    setChangesApplied(true);
   };
 
   const deleteProperty = () => {
@@ -50,12 +59,11 @@ const EmailFormGroup = ({
       property: 'email',
       email: _email,
     });
+
+    setChangeOccured(false);
   };
 
-  const onChangeHandler = (e) =>
-    setEmail(
-      e.target.value.trim() !== _email.trim() ? e.target.value.trim() : bu_email
-    );
+  const onChangeHandler = (e) => setEmail(e.target.value.trim());
 
   const onKeyupHandler = () =>
     setChangeOccured(_email.trim() !== bu_email.trim() ? true : false);
@@ -118,39 +126,46 @@ const EmailFormGroup = ({
           </Col>
 
           {changeOccured ? (
-            <Col className='my-3' xs={12} md={3}>
-              <span
-                onClick={saveProperty}
-                className='btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold'
-              >
-                <i className='fas fa-pencil-alt fw'></i> Save
-              </span>
-            </Col>
-          ) : null}
-
-          {changes ? (
             <>
-              <Col className='my-3' xs={12} md={3}>
-                <span
-                  onClick={() => {
-                    changes && changes.action === 'update'
-                      ? modifyProperty(changes)
-                      : removeProperty(changes);
-                  }}
-                  className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
-                >
-                  <i className='fas fa-go fw'></i> Apply
-                </span>
-              </Col>
+              {!changesSaved ? (
+                <Col className='my-3' xs={12} md={3}>
+                  <span
+                    onClick={saveProperty}
+                    className='btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold'
+                  >
+                    <i className='fas fa-pencil-alt fw'></i> Save
+                  </span>
+                </Col>
+              ) : null}
 
-              <Col className='my-3' xs={12} md={3}>
-                <span
-                  onClick={resetEmail}
-                  className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
-                >
-                  <i className='fas fa-stop fw'></i> Cancel
-                </span>
-              </Col>
+              {changesSaved ? (
+                <>
+                  {!changesApplied ? (
+                    <Col className='my-3' xs={12} md={3}>
+                      <span
+                        onClick={() => {
+                          applyChanges();
+                          changes && changes.action === 'update'
+                            ? modifyProperty(changes)
+                            : removeProperty(changes);
+                        }}
+                        className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                      >
+                        <i className='fas fa-go fw'></i> Apply
+                      </span>
+                    </Col>
+                  ) : null}
+
+                  <Col className='my-3' xs={12} md={3}>
+                    <span
+                      onClick={resetEmail}
+                      className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                    >
+                      <i className='fas fa-stop fw'></i> Cancel
+                    </span>
+                  </Col>
+                </>
+              ) : null}
             </>
           ) : null}
 

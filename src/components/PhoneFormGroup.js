@@ -14,6 +14,8 @@ const PhoneFormGroup = ({
   const [bu_phone, setBuPhone] = useState('');
   const [bu_category, setBuCategory] = useState('');
   const [changeOccured, setChangeOccured] = useState(false);
+  const [changesSaved, setChangesSaved] = useState(false);
+  const [changesApplied, setChangesApplied] = useState(false);
   const [changes, setChanges] = useState(null);
 
   useEffect(() => {
@@ -27,6 +29,8 @@ const PhoneFormGroup = ({
     setCategory(bu_category);
     setPhone(bu_phone);
     setChangeOccured(false);
+    setChangesApplied(false);
+    setChangesSaved(false);
     setChanges(null);
   };
 
@@ -38,6 +42,11 @@ const PhoneFormGroup = ({
       property: 'phone',
       phone: _phone,
     });
+    setChangesSaved(true);
+  };
+
+  const applyChanges = () => {
+    setChangesApplied(true);
   };
 
   const deleteProperty = () => {
@@ -50,6 +59,8 @@ const PhoneFormGroup = ({
       type: 'phone',
       email: _phone,
     });
+
+    setChangeOccured(false);
   };
 
   const onChangeHandler = (e) => {
@@ -118,40 +129,47 @@ const PhoneFormGroup = ({
             />
           </Col>
           {changeOccured ? (
-            <Col className='my-3' xs={12} md={3}>
-              <span
-                onClick={saveProperty}
-                className='btn btn-outline-primary d-inline-block border
-                border-primary rounded font-weight-bold'
-              >
-                <i className='fas fa-pencil-alt fw'></i> Save
-              </span>
-            </Col>
-          ) : null}
-
-          {changes ? (
             <>
-              <Col className='my-3' xs={12} md={3}>
-                <span
-                  onClick={() => {
-                    changes && changes.action === 'update'
-                      ? modifyProperty(changes)
-                      : removeProperty(changes);
-                  }}
-                  className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
-                >
-                  <i className='fas fa-go fw'></i> Apply
-                </span>
-              </Col>
+              {!changesSaved ? (
+                <Col className='my-3' xs={12} md={3}>
+                  <span
+                    onClick={saveProperty}
+                    className='btn btn-outline-primary d-inline-block border
+                border-primary rounded font-weight-bold'
+                  >
+                    <i className='fas fa-pencil-alt fw'></i> Save
+                  </span>
+                </Col>
+              ) : null}
 
-              <Col className='my-3' xs={12} md={3}>
-                <span
-                  onClick={resetPhone}
-                  className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
-                >
-                  <i className='fas fa-stop fw'></i> Cancel
-                </span>
-              </Col>
+              {changesSaved ? (
+                <>
+                  {!changesApplied ? (
+                    <Col className='my-3' xs={12} md={3}>
+                      <span
+                        onClick={() => {
+                          applyChanges();
+                          changes && changes.action === 'update'
+                            ? modifyProperty(changes)
+                            : removeProperty(changes);
+                        }}
+                        className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                      >
+                        <i className='fas fa-go fw'></i> Apply
+                      </span>
+                    </Col>
+                  ) : null}
+
+                  <Col className='my-3' xs={12} md={3}>
+                    <span
+                      onClick={resetPhone}
+                      className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                    >
+                      <i className='fas fa-stop fw'></i> Cancel
+                    </span>
+                  </Col>
+                </>
+              ) : null}
             </>
           ) : null}
 
