@@ -27,26 +27,32 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
 
   const resetName = () => {
     resetFname();
-    resetLname();
     setFnameChangeOccured(false);
+    setFnameChangesSaved(false);
+    setFnameChangesApplied(false);
+    resetLname();
     setLnameChangeOccured(false);
-    setChangesSaved(false);
-    setChangesApplied(false);
+    setLnameChangesSaved(false);
+    setLnameChangesApplied(false);
   };
 
   const onFnameChangeHandler = (e) => {
     setFname(e.target.value.trim());
   };
 
+  const onFnameKeyupHandler = () =>
+    setFnameChangeOccured(fname.trim() !== bu_fname.trim() ? true : false);
+
   const onLnameChangeHandler = (e) => {
     setLname(e.target.value.trim());
   };
 
-  const onFnameKeyupHandler = () =>
-    setChangeOccured(fname.trim() !== bu_fname.trim() ? true : false);
-
   const onLnameKeyupHandler = () =>
-    setChangeOccured(lname.trim() !== bu_lname.trim() ? true : false);
+    setLnameChangeOccured(lname.trim() !== bu_lname.trim() ? true : false);
+
+  const applyChanges = () => {
+    console.log(`Changes applied`);
+  };
 
   return (
     <>
@@ -62,21 +68,40 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
             onChange={onFnameChangeHandler}
             onKeyUp={onFnameKeyupHandler}
           />
-          {fnameChangeOccured ? 
+          {fnameChangeOccured ? (
             <Row>
-              {!fnameChangesSaved?<Col className='my-3' xs={12} md={6}>
-                <span
-                  onClick={() => console.log(`${id} modified name`)}
-                  className='btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold'
-                >
-                  <i className='fas fa-pencil-alt fw'></i> Save
-                </span>
-              </Col>:null}
+              {!fnameChangesSaved ? (
+                <Col className='my-3' xs={12} md={6}>
+                  <span
+                    onClick={() => console.log(`${id} modified name`)}
+                    className='btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold'
+                  >
+                    <i className='fas fa-pencil-alt fw'></i> Save
+                  </span>
+                </Col>
+              ) : null}
+
+              {!fnameChangesApplied ? (
+                <Col className='my-3' xs={12} md={3}>
+                  <span
+                    onClick={() => {
+                      applyChanges();
+                      changes &&
+                        changes.action === 'update' &&
+                        modifyProperty(changes);
+                    }}
+                    className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                  >
+                    <i className='fas fa-go fw'></i> Apply
+                  </span>
+                </Col>
+              ) : null}
+
               <Col className='my-3' xs={12} md={6}>
                 <span
                   onClick={resetFname}
                   className={
-                    changeOccured
+                    fnameChangeOccured
                       ? 'btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
                       : 'btn btn-outline-light d-inline-block border border-light rounded font-weight-normal'
                   }
@@ -85,7 +110,7 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
                 </span>
               </Col>
             </Row>
-           : null}
+          ) : null}
         </Col>
         <Col xs={12} md={6}>
           <Form.Control
@@ -101,19 +126,21 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
           />
           {lnameChangeOccured ? (
             <Row>
-             {!} <Col className='my-3' xs={12} md={6}>
-                <span
-                  onClick={() => console.log(`${id} modified name`)}
-                  className='btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold'
-                >
-                  <i className='fas fa-pencil-alt fw'></i> Save
-                </span>
-              </Col>
+              {!lnameChangesSaved ? (
+                <Col className='my-3' xs={12} md={6}>
+                  <span
+                    onClick={() => console.log(`${id} modified name`)}
+                    className='btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold'
+                  >
+                    <i className='fas fa-pencil-alt fw'></i> Save
+                  </span>
+                </Col>
+              ) : null}
               <Col className='my-3' xs={12} md={6}>
                 <span
-                  onClick={resetName}
+                  onClick={resetLname}
                   className={
-                    changeOccured
+                    lnameChangeOccured
                       ? 'btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
                       : 'btn btn-outline-light d-inline-block border border-light rounded font-weight-normal'
                   }
