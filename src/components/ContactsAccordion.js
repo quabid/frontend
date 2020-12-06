@@ -11,7 +11,7 @@ import {
 import NameFormGroup from '../components/NameFormGroup';
 import EmailFormGroup from '../components/EmailFormGroup';
 import PhoneFormGroup from '../components/PhoneFormGroup';
-import { log, hasKeys } from '../utils';
+import { log, hasKeys, stringify } from '../utils';
 
 const ContactsAccordion = ({ contacts }) => {
   const [contactsToUpdate, setContactsToUpdate] = useState([]);
@@ -21,6 +21,9 @@ const ContactsAccordion = ({ contacts }) => {
       const contact = contactsToUpdate.find(x => x.id === obj.id);
       // If contact is in the list
       if (contact) {
+        log(`\n\n\t\t\tContact exists ${stringify(contact)}`);
+        log(`\t\t\tUpdate information ${stringify(obj)}\n\n`);
+
         switch (obj.property) {
           case 'email':
             console.log(`${obj.action} ${obj.property}`);
@@ -45,20 +48,8 @@ const ContactsAccordion = ({ contacts }) => {
             break;
 
           case 'name':
-            switch (obj.which) {
-              case 'fname':
-                contact.name.fname = obj.fname;
-                break;
-
-              case 'lname':
-                contact.name.lname = obj.lname;
-                break;
-
-              default:
-                contact.name.fname = null;
-                contact.name.lname = null;
-                break;
-            }
+            contact.name.fname = obj.fname;
+            contact.name.lname = obj.lname;
             break;
 
           default:
@@ -104,8 +95,6 @@ const ContactsAccordion = ({ contacts }) => {
                 break;
 
               default:
-                contact.name.fname = null;
-                contact.name.lname = null;
                 break;
             }
             break;

@@ -39,9 +39,7 @@ const NameFormGroup = ({
     });
   };
 
-  const onFnameChangeHandler = e => {
-    setFname(e.target.value.trim());
-  };
+  const onFnameChangeHandler = e => setFname(e.target.value.trim());
 
   const onFnameKeyupHandler = () =>
     setFnameChangeOccured(fname.trim() !== bu_fname.trim() ? true : false);
@@ -56,6 +54,7 @@ const NameFormGroup = ({
         property: 'name',
         which: 'fname',
         fname: fname,
+        lname: lname,
       });
     }
     setFnameChangesSaved(true);
@@ -75,9 +74,7 @@ const NameFormGroup = ({
     });
   };
 
-  const onLnameChangeHandler = e => {
-    setLname(e.target.value.trim());
-  };
+  const onLnameChangeHandler = e => setLname(e.target.value.trim());
 
   const onLnameKeyupHandler = () =>
     setLnameChangeOccured(lname.trim() !== bu_lname.trim() ? true : false);
@@ -92,6 +89,7 @@ const NameFormGroup = ({
         property: 'name',
         which: 'lname',
         lname: lname,
+        fname: fname,
       });
     }
     setLnameChangesSaved(true);
