@@ -8,6 +8,7 @@ const EmailFormGroup = ({
   email,
   modifyProperty,
   removeProperty,
+  cancelModification,
 }) => {
   const [_email, setEmail] = useState('');
   const [_category, setCategory] = useState('');
@@ -32,6 +33,12 @@ const EmailFormGroup = ({
     setChangesApplied(false);
     setChangesSaved(false);
     setChanges(null);
+    cancelModification({
+      id: id,
+      property: 'email',
+      email: _email,
+      category: _category,
+    });
   };
 
   const saveProperty = () => {
@@ -63,25 +70,25 @@ const EmailFormGroup = ({
     setChangeOccured(false);
   };
 
-  const onChangeHandler = (e) => setEmail(e.target.value.trim());
+  const onChangeHandler = e => setEmail(e.target.value.trim());
 
   const onKeyupHandler = () =>
     setChangeOccured(_email.trim() !== bu_email.trim() ? true : false);
 
   return (
-    <Form.Group controlId='exampleForm.SelectCustom'>
+    <Form.Group controlId="exampleForm.SelectCustom">
       <Container fluid>
         <Row>
           <Col xs={3}>
             <Form.Label
-              className='font-weight-bolder text-white my-2'
+              className="font-weight-bolder text-white my-2"
               style={{ fontSize: '1.2rem' }}
             >
               <Dropdown>
                 <Dropdown.Toggle
-                  variant='outline-success'
-                  size='sm'
-                  id='emailCategory'
+                  variant="outline-success"
+                  size="sm"
+                  id="emailCategory"
                 >
                   {_category || 'Email Category'}
                 </Dropdown.Toggle>
@@ -91,7 +98,7 @@ const EmailFormGroup = ({
                     <Dropdown.Item
                       key={index + 22}
                       id={option}
-                      onSelect={(e) => {
+                      onSelect={e => {
                         const selectedItem = e.split('#')[1];
                         console.log(
                           `Selected item changed to: ${selectedItem}`
@@ -114,26 +121,27 @@ const EmailFormGroup = ({
           </Col>
           <Col xs={12}>
             <Form.Control
-              className='my-2 mx-auto'
+              className="my-2 mx-auto"
               style={{ background: 'transparent', color: '#fff' }}
-              size='lg'
-              as='input'
-              type='email'
+              size="lg"
+              as="input"
+              type="email"
               value={_email}
               onChange={onChangeHandler}
               onKeyUp={onKeyupHandler}
+              disabled={changesSaved ? true : false}
             />
           </Col>
 
           {changeOccured ? (
             <>
               {!changesSaved ? (
-                <Col className='my-3' xs={12} md={3}>
+                <Col className="my-3" xs={12} md={3}>
                   <span
                     onClick={saveProperty}
-                    className='btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold'
+                    className="btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold"
                   >
-                    <i className='fas fa-pencil-alt fw'></i> Save
+                    <i className="fas fa-pencil-alt fw"></i> Save
                   </span>
                 </Col>
               ) : null}
@@ -141,7 +149,7 @@ const EmailFormGroup = ({
               {changesSaved ? (
                 <>
                   {!changesApplied ? (
-                    <Col className='my-3' xs={12} md={3}>
+                    <Col className="my-3" xs={12} md={3}>
                       <span
                         onClick={() => {
                           applyChanges();
@@ -149,19 +157,19 @@ const EmailFormGroup = ({
                             ? modifyProperty(changes)
                             : removeProperty(changes);
                         }}
-                        className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                        className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
                       >
-                        <i className='fas fa-go fw'></i> Apply
+                        <i className="fas fa-go fw"></i> Apply
                       </span>
                     </Col>
                   ) : null}
 
-                  <Col className='my-3' xs={12} md={3}>
+                  <Col className="my-3" xs={12} md={3}>
                     <span
                       onClick={resetEmail}
-                      className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                      className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
                     >
-                      <i className='fas fa-stop fw'></i> Cancel
+                      <i className="fas fa-stop fw"></i> Cancel
                     </span>
                   </Col>
                 </>
@@ -169,12 +177,12 @@ const EmailFormGroup = ({
             </>
           ) : null}
 
-          <Col className='my-3' xs={12} md={3}>
+          <Col className="my-3" xs={12} md={3}>
             <span
               onClick={deleteProperty}
-              className='btn btn-outline-danger d-inline-block border border-danger rounded font-weight-bold'
+              className="btn btn-outline-danger d-inline-block border border-danger rounded font-weight-bold"
             >
-              <i className='fas fa-trash-alt fw'></i> Remove
+              <i className="fas fa-trash-alt fw"></i> Remove
             </span>
           </Col>
         </Row>

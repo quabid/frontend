@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 
-const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
+const NameFormGroup = ({
+  id,
+  firstName,
+  lastName,
+  modifyProperty,
+  cancelModification,
+}) => {
   const [fname, setFname] = useState('');
   const [lname, setLname] = useState('');
   const [bu_fname, setBuFname] = useState('');
@@ -26,24 +32,11 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
     setFnameChangeOccured(false);
     setFnameChangesApplied(false);
     setFnameChangesSaved(false);
-  };
-
-  const resetLname = () => {
-    setLname(bu_lname);
-    setLnameChangeOccured(false);
-    setLnameChangesApplied(false);
-    setLnameChangesSaved(false);
-  };
-
-  const resetName = () => {
-    resetFname();
-    setFnameChangeOccured(false);
-    setFnameChangesSaved(false);
-    setFnameChangesApplied(false);
-    resetLname();
-    setLnameChangeOccured(false);
-    setLnameChangesSaved(false);
-    setLnameChangesApplied(false);
+    cancelModification({
+      id: id,
+      property: 'name',
+      which: 'fname',
+    });
   };
 
   const onFnameChangeHandler = e => {
@@ -55,7 +48,7 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
 
   const saveFnameProperty = () => {
     if (changes) {
-      changes.fanme = fname;
+      changes.fname = fname;
     } else {
       setChanges({
         id: id,
@@ -68,6 +61,20 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
     setFnameChangesSaved(true);
   };
 
+  const applyFnameChanges = () => setFnameChangesApplied(true);
+
+  const resetLname = () => {
+    setLname(bu_lname);
+    setLnameChangeOccured(false);
+    setLnameChangesApplied(false);
+    setLnameChangesSaved(false);
+    cancelModification({
+      id: id,
+      property: 'name',
+      which: 'lname',
+    });
+  };
+
   const onLnameChangeHandler = e => {
     setLname(e.target.value.trim());
   };
@@ -77,7 +84,7 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
 
   const saveLnameProperty = () => {
     if (changes) {
-      changes.lanme = lname;
+      changes.lname = lname;
     } else {
       setChanges({
         id: id,
@@ -90,13 +97,7 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
     setLnameChangesSaved(true);
   };
 
-  const applyFnameChanges = () => {
-    resetFname();
-  };
-
-  const applyLnameChanges = () => {
-    resetLname();
-  };
+  const applyLnameChanges = () => setLnameChangesApplied(true);
 
   return (
     <Row>
@@ -110,6 +111,7 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
           value={fname}
           onChange={onFnameChangeHandler}
           onKeyUp={onFnameKeyupHandler}
+          disabled={fnameChangesSaved ? true : false}
         />
         {fnameChangeOccured ? (
           <>
@@ -125,29 +127,33 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
             ) : null}
 
             {fnameChangesSaved ? (
-              <Col className="my-3" xs={12} md={3}>
-                <span
-                  onClick={() => {
-                    applyFnameChanges();
-                    changes &&
-                      changes.action === 'update' &&
-                      modifyProperty(changes);
-                  }}
-                  className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
-                >
-                  <i className="fas fa-go fw"></i> Apply
-                </span>
-              </Col>
-            ) : null}
+              <>
+                {!fnameChangesApplied ? (
+                  <Col className="my-3" xs={12} md={3}>
+                    <span
+                      onClick={() => {
+                        applyFnameChanges();
+                        changes &&
+                          changes.action === 'update' &&
+                          modifyProperty(changes);
+                      }}
+                      className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
+                    >
+                      <i className="fas fa-go fw"></i> Apply
+                    </span>
+                  </Col>
+                ) : null}
 
-            <Col className="my-3" xs={12} md={6}>
-              <span
-                onClick={resetFname}
-                className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
-              >
-                <i className="fas fa-stop fw"></i> Cancel
-              </span>
-            </Col>
+                <Col className="my-3" xs={12} md={6}>
+                  <span
+                    onClick={resetFname}
+                    className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
+                  >
+                    <i className="fas fa-stop fw"></i> Cancel
+                  </span>
+                </Col>
+              </>
+            ) : null}
           </>
         ) : null}
       </Col>
@@ -163,6 +169,7 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
           value={lname}
           onChange={onLnameChangeHandler}
           onKeyUp={onLnameKeyupHandler}
+          disabled={lnameChangesSaved ? true : false}
         />
         {lnameChangeOccured ? (
           <>
@@ -178,29 +185,33 @@ const NameFormGroup = ({ id, firstName, lastName, modifyProperty }) => {
             ) : null}
 
             {lnameChangesSaved ? (
-              <Col className="my-3" xs={12} md={3}>
-                <span
-                  onClick={() => {
-                    applyLnameChanges();
-                    changes &&
-                      changes.action === 'update' &&
-                      modifyProperty(changes);
-                  }}
-                  className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
-                >
-                  <i className="fas fa-go fw"></i> Apply
-                </span>
-              </Col>
-            ) : null}
+              <>
+                {!lnameChangesApplied ? (
+                  <Col className="my-3" xs={12} md={3}>
+                    <span
+                      onClick={() => {
+                        applyLnameChanges();
+                        changes &&
+                          changes.action === 'update' &&
+                          modifyProperty(changes);
+                      }}
+                      className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
+                    >
+                      <i className="fas fa-go fw"></i> Apply
+                    </span>
+                  </Col>
+                ) : null}
 
-            <Col className="my-3" xs={12} md={6}>
-              <span
-                onClick={resetLname}
-                className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
-              >
-                <i className="fas fa-stop fw"></i> Cancel
-              </span>
-            </Col>
+                <Col className="my-3" xs={12} md={6}>
+                  <span
+                    onClick={resetLname}
+                    className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
+                  >
+                    <i className="fas fa-stop fw"></i> Cancel
+                  </span>
+                </Col>
+              </>
+            ) : null}
           </>
         ) : null}
       </Col>

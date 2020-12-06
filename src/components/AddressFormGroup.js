@@ -8,6 +8,8 @@ const AddressFormGroup = ({
   address,
   modifyProperty,
   removeProperty,
+  cancelModification,
+  uuid,
 }) => {
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
@@ -51,8 +53,14 @@ const AddressFormGroup = ({
     zipcode,
   ]);
 
-  const update = (obj) => {
-    let changes = { action: 'update', id: id, property: 'address' };
+  const update = obj => {
+    let changes = {
+      action: 'update',
+      id: id,
+      property: 'address',
+      category: _category,
+      uuid,
+    };
     if (null !== updateChanges) {
       changes = updateChanges;
     } else {
@@ -82,10 +90,32 @@ const AddressFormGroup = ({
   };
 
   const remove = () => {
-    setUpdateChanges({ action: 'remove', id: id, property: 'address' });
+    setUpdateChanges({ action: 'remove', id: id, property: 'address', uuid });
   };
 
   const applyChanges = () => {
+    setCategoryChanges(false);
+    setStreetChanges(false);
+    setCityChanges(false);
+    setZipcodeChanges(false);
+
+    switch (updateChanges.action) {
+      case 'update':
+        modifyProperty(updateChanges);
+        break;
+
+      case 'remove':
+        removeProperty(updateChanges);
+        break;
+
+      case 'cancel':
+        cancelModification(updateChanges);
+        break;
+
+      default:
+        break;
+    }
+
     updateChanges && updateChanges.action === 'update'
       ? modifyProperty(updateChanges)
       : removeProperty(updateChanges);
@@ -100,6 +130,19 @@ const AddressFormGroup = ({
     if (updateChanges && updateChanges.street) {
       delete updateChanges.street;
     }
+    let changes = {
+      action: 'cancel',
+      id: id,
+      property: 'address',
+      street: street,
+      which: 'street',
+      uuid,
+    };
+    if (null !== updateChanges) {
+      changes = updateChanges;
+    } else {
+      setUpdateChanges(changes);
+    }
   };
 
   const saveStreetProperty = () => {
@@ -108,7 +151,7 @@ const AddressFormGroup = ({
     update({ which: 'street', street });
   };
 
-  const onStreetChangeHandler = (e) => setStreet(e.target.value);
+  const onStreetChangeHandler = e => setStreet(e.target.value);
 
   const onStreetKeyup = () =>
     setStreetChangeOccured(street !== bu_street ? true : false);
@@ -122,6 +165,19 @@ const AddressFormGroup = ({
     if (updateChanges && updateChanges.city) {
       delete updateChanges.city;
     }
+    let changes = {
+      action: 'cancel',
+      id: id,
+      property: 'address',
+      which: 'city',
+      city: city,
+      uuid,
+    };
+    if (null !== updateChanges) {
+      changes = updateChanges;
+    } else {
+      setUpdateChanges(changes);
+    }
   };
 
   const saveCityProperty = () => {
@@ -130,7 +186,7 @@ const AddressFormGroup = ({
     update({ which: 'city', city });
   };
 
-  const onCityChangeHandler = (e) => setCity(e.target.value);
+  const onCityChangeHandler = e => setCity(e.target.value);
 
   const onCityKeyup = () =>
     setCityChangeOccured(city !== bu_city ? true : false);
@@ -143,6 +199,19 @@ const AddressFormGroup = ({
     if (updateChanges && updateChanges.zipcode) {
       delete updateChanges.zipcode;
     }
+    let changes = {
+      action: 'cancel',
+      id: id,
+      property: 'address',
+      zipcode: zipcode,
+      which: 'zipcode',
+      uuid,
+    };
+    if (null !== updateChanges) {
+      changes = updateChanges;
+    } else {
+      setUpdateChanges(changes);
+    }
   };
 
   const saveZipcodeProperty = () => {
@@ -151,7 +220,7 @@ const AddressFormGroup = ({
     update({ which: 'zipcode', zipcode: zipcode });
   };
 
-  const onZipcodeChangeHandler = (e) => setZipcode(e.target.value);
+  const onZipcodeChangeHandler = e => setZipcode(e.target.value);
 
   const onZipcodeKeyup = () =>
     setZipcodeChangeOccured(zipcode !== bu_zipcode ? true : false);
@@ -169,19 +238,19 @@ const AddressFormGroup = ({
   };
 
   return (
-    <Form.Group controlId='exampleForm.SelectCustom'>
+    <Form.Group controlId="exampleForm.SelectCustom">
       <Container fluid>
         <Row>
           <Col xs={3}>
             <Form.Label
-              className='font-weight-bolder text-white my-2'
+              className="font-weight-bolder text-white my-2"
               style={{ fontSize: '1.2rem' }}
             >
               <Dropdown>
                 <Dropdown.Toggle
-                  variant='outline-success'
-                  size='sm'
-                  id='addressCategory'
+                  variant="outline-success"
+                  size="sm"
+                  id="addressCategory"
                 >
                   {_category || 'Address Category'}
                 </Dropdown.Toggle>
@@ -191,7 +260,7 @@ const AddressFormGroup = ({
                     <Dropdown.Item
                       key={index + 22}
                       id={option}
-                      onSelect={(e) => {
+                      onSelect={e => {
                         const selectedItem = e.split('#')[1];
                         console.log(
                           `Selected category item changed to: ${selectedItem}`
@@ -222,11 +291,11 @@ const AddressFormGroup = ({
 
           <Col xs={12}>
             <Form.Control
-              className='my-2 mx-auto'
+              className="my-2 mx-auto"
               style={{ background: 'transparent', color: '#fff' }}
-              size='lg'
-              as='input'
-              type='text'
+              size="lg"
+              as="input"
+              type="text"
               value={street}
               onChange={onStreetChangeHandler}
               onKeyUp={onStreetKeyup}
@@ -234,21 +303,21 @@ const AddressFormGroup = ({
 
             {streetChangeOccured ? (
               <>
-                <Col className='my-3' xs={12} md={3}>
+                <Col className="my-3" xs={12} md={3}>
                   <span
                     onClick={resetStreet}
-                    className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                    className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
                   >
-                    <i className='fas fa-stop fw'></i> Cancel
+                    <i className="fas fa-stop fw"></i> Cancel
                   </span>
                 </Col>
                 {!streetChangeSaved ? (
-                  <Col className='my-3' xs={12} md={3}>
+                  <Col className="my-3" xs={12} md={3}>
                     <span
                       onClick={saveStreetProperty}
-                      className='btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold'
+                      className="btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold"
                     >
-                      <i className='fas fa-pencil-alt fw'></i> Save
+                      <i className="fas fa-pencil-alt fw"></i> Save
                     </span>
                   </Col>
                 ) : null}
@@ -258,11 +327,11 @@ const AddressFormGroup = ({
 
           <Col xs={12}>
             <Form.Control
-              className='my-2 mx-auto'
+              className="my-2 mx-auto"
               style={{ background: 'transparent', color: '#fff' }}
-              size='lg'
-              as='input'
-              type='text'
+              size="lg"
+              as="input"
+              type="text"
               value={city}
               onChange={onCityChangeHandler}
               onKeyUp={onCityKeyup}
@@ -270,21 +339,21 @@ const AddressFormGroup = ({
 
             {cityChangeOccured ? (
               <>
-                <Col className='my-3' xs={12} md={3}>
+                <Col className="my-3" xs={12} md={3}>
                   <span
                     onClick={resetCity}
-                    className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                    className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
                   >
-                    <i className='fas fa-stop fw'></i> Cancel
+                    <i className="fas fa-stop fw"></i> Cancel
                   </span>
                 </Col>
                 {!cityChangeSaved ? (
-                  <Col className='my-3' xs={12} md={3}>
+                  <Col className="my-3" xs={12} md={3}>
                     <span
                       onClick={saveCityProperty}
-                      className='btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold'
+                      className="btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold"
                     >
-                      <i className='fas fa-pencil-alt fw'></i> Save
+                      <i className="fas fa-pencil-alt fw"></i> Save
                     </span>
                   </Col>
                 ) : null}
@@ -294,11 +363,11 @@ const AddressFormGroup = ({
 
           <Col xs={12}>
             <Form.Control
-              className='my-2 mx-auto'
+              className="my-2 mx-auto"
               style={{ background: 'transparent', color: '#fff' }}
-              size='lg'
-              as='input'
-              type='zipcode'
+              size="lg"
+              as="input"
+              type="zipcode"
               value={zipcode}
               onChange={onZipcodeChangeHandler}
               onKeyUp={onZipcodeKeyup}
@@ -306,21 +375,21 @@ const AddressFormGroup = ({
 
             {zipcodeChangeOccured ? (
               <>
-                <Col className='my-3' xs={12} md={3}>
+                <Col className="my-3" xs={12} md={3}>
                   <span
                     onClick={resetZipcode}
-                    className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                    className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
                   >
-                    <i className='fas fa-stop fw'></i> Cancel
+                    <i className="fas fa-stop fw"></i> Cancel
                   </span>
                 </Col>
                 {!zipcodeChangeSaved ? (
-                  <Col className='my-3' xs={12} md={3}>
+                  <Col className="my-3" xs={12} md={3}>
                     <span
                       onClick={saveZipcodeProperty}
-                      className='btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold'
+                      className="btn btn-outline-primary d-inline-block border border-primary rounded font-weight-bold"
                     >
-                      <i className='fas fa-pencil-alt fw'></i> Save
+                      <i className="fas fa-pencil-alt fw"></i> Save
                     </span>
                   </Col>
                 ) : null}
@@ -328,23 +397,23 @@ const AddressFormGroup = ({
             ) : null}
           </Col>
 
-          <Col className='my-3' xs={12} md={3}>
+          <Col className="my-3" xs={12} md={3}>
             <span
               onClick={remove}
-              className='btn btn-outline-danger d-inline-block border border-danger rounded font-weight-bold'
+              className="btn btn-outline-danger d-inline-block border border-danger rounded font-weight-bold"
             >
-              <i className='fas fa-trash-alt fw'></i> Remove
+              <i className="fas fa-trash-alt fw"></i> Remove
             </span>
           </Col>
 
           {streetChanges || cityChanges || zipcodeChanges || categoryChanges ? (
             <>
-              <Col className='my-3' xs={12} md={3}>
+              <Col className="my-3" xs={12} md={3}>
                 <span
                   onClick={applyChanges}
-                  className='btn btn-outline-success d-inline-block border border-success rounded font-weight-bold'
+                  className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold"
                 >
-                  <i className='fas fa-go fw'></i> Apply Changes
+                  <i className="fas fa-go fw"></i> Apply Changes
                 </span>
               </Col>
             </>

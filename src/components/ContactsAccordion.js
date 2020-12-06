@@ -11,7 +11,7 @@ import {
 import NameFormGroup from '../components/NameFormGroup';
 import EmailFormGroup from '../components/EmailFormGroup';
 import PhoneFormGroup from '../components/PhoneFormGroup';
-import AddressFormGroup from '../components/AddressFormGroup';
+import { log, hasKeys } from '../utils';
 
 const ContactsAccordion = ({ contacts }) => {
   const [contactsToUpdate, setContactsToUpdate] = useState([]);
@@ -22,23 +22,19 @@ const ContactsAccordion = ({ contacts }) => {
       // If contact is in the list
       if (contact) {
         switch (obj.property) {
-          case 'address':
-            contact.addresses.push({
-              category: obj.category || null,
-              address: {
-                street: obj.street || null,
-                city: obj.city || null,
-                zipcode: obj.zipcode || null,
-              },
-            });
-            break;
-
           case 'email':
             console.log(`${obj.action} ${obj.property}`);
-            contact.emails.push({
-              category: obj.category || null,
-              email: obj.email || null,
-            });
+            const email = contact.emails.find(e => e.email === obj.email);
+
+            if (email) {
+              email.category = obj.category;
+              email.email = obj.email;
+            } else {
+              contact.emails.push({
+                category: obj.category || null,
+                email: obj.email || null,
+              });
+            }
             break;
 
           case 'phone':
@@ -78,22 +74,10 @@ const ContactsAccordion = ({ contacts }) => {
           action: obj.action,
           emails: [],
           phones: [],
-          addresses: [],
           name: { fname: '', lname: '' },
         };
         contactsToUpdate.push(contact);
         switch (obj.property) {
-          case 'address':
-            contact.addresses.push({
-              category: obj.category || null,
-              address: {
-                street: obj.street || null,
-                city: obj.city || null,
-                zipcode: obj.zipcode || null,
-              },
-            });
-            break;
-
           case 'email':
             console.log(`${obj.action} ${obj.property}`);
             contact.emails.push({
@@ -136,6 +120,57 @@ const ContactsAccordion = ({ contacts }) => {
       return;
     }
     console.log(`\n\n\t\t\tContacts To Be Updated`);
+    console.log(contactsToUpdate);
+  };
+
+  const cancelUpdate = obj => {
+    const contact = contactsToUpdate.find(x => x.id === obj.id);
+
+    if (contact) {
+      switch (obj.property) {
+        case 'name':
+          log(`Cancel update for property ${obj.which}`);
+          delete contact.name[obj.which];
+          if (!hasKeys(contact.name)) {
+            delete contact.name;
+          }
+          break;
+
+        case 'email':
+          let emailIndex = contact.emails.findIndex(x => x.email === obj.email);
+          if (emailIndex !== -1) {
+            log(`Cancel update for property ${obj.property}`);
+            const email = contact.emails[emailIndex];
+            delete email.email;
+            delete email.category;
+            if (!hasKeys(email)) {
+              contact.emails.splice(emailIndex, (emailIndex += 1));
+            }
+          }
+          break;
+
+        case 'phone':
+          let phoneIndex = contact.phones.findIndex(x => x.phone === obj.phone);
+          if (phoneIndex !== -1) {
+            log(`Cancel update for property ${obj.property}`);
+            const phone = contact.phones[phoneIndex];
+            delete phone.phone;
+            delete phone.category;
+            if (!hasKeys(phone)) {
+              contact.phones.splice(phoneIndex, (phoneIndex += 1));
+            }
+          }
+          break;
+
+        default:
+          break;
+      }
+    } else {
+      console.log(`\n\n\t\tNothing to cancel`);
+    }
+    console.log(
+      `\n\n\t\tCancelled Update To Property: ${obj.which || obj.property}`
+    );
     console.log(contactsToUpdate);
   };
 
@@ -191,6 +226,7 @@ const ContactsAccordion = ({ contacts }) => {
                           firstName={contact.fname}
                           lastName={contact.lname}
                           modifyProperty={updateEntity}
+                          cancelModification={cancelUpdate}
                         />
                       </Col>
                     </Row>
@@ -210,6 +246,7 @@ const ContactsAccordion = ({ contacts }) => {
                             category={phone.category}
                             modifyProperty={updateEntity}
                             removeProperty={updateEntity}
+                            cancelModification={cancelUpdate}
                           />
                         ))}
                       </Col>
@@ -230,26 +267,7 @@ const ContactsAccordion = ({ contacts }) => {
                             category={email.category}
                             modifyProperty={updateEntity}
                             removeProperty={updateEntity}
-                          />
-                        ))}
-                      </Col>
-                    </Row>
-                    <Row className="border border-secondary rounded my-2">
-                      <Col className="p-3">
-                        <h2 className="h5 text-left font-weight-bolder">
-                          Addresses
-                        </h2>
-                        <h2 className="h5 text-right d-inline-block add add-address">
-                          <i className="fas fa-plus fw"></i>
-                        </h2>
-                        {contact.addresses.map((address, index) => (
-                          <AddressFormGroup
-                            key={index + 1}
-                            id={contact._id}
-                            address={address.address}
-                            category={address.category}
-                            modifyProperty={updateEntity}
-                            removeProperty={updateEntity}
+                            cancelModification={cancelUpdate}
                           />
                         ))}
                       </Col>
@@ -263,7 +281,20 @@ const ContactsAccordion = ({ contacts }) => {
       </Card>
     );
   });
-  return <Accordion>{accordion}</Accordion>;
+
+  return (
+    <Row>
+      <Col xs={12} md={2}>
+        {' '}
+        <span className="btn btn-outline-success d-inline-block border border-success rounded font-weight-bold">
+          <i className="fas fa-go fw"></i> Upload Changes
+        </span>
+      </Col>
+      <Col xs={12} md={10}>
+        <Accordion>{accordion}</Accordion>
+      </Col>
+    </Row>
+  );
 };
 
 export default ContactsAccordion;
